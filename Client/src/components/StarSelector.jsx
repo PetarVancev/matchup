@@ -4,6 +4,7 @@ const StarSelector = (props) => {
   const [selectedStars, setSelectedStars] = useState(1);
   const handleStarClick = (starCount) => {
     setSelectedStars(starCount);
+    props.onStarsChange(starCount);
   };
   const classes = "star-selector " + props.className;
 
