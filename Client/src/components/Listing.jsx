@@ -1,83 +1,83 @@
 import React from "react";
-import Axios from "axios";
-import StarSelector from "./StarSelector";
 
-function Listing({ selectedMode }) {
-  let skillLevel = 3;
+function Listing({ selectedMode, handleEnroll, listingData }) {
+  const {
+    sport_id,
+    location,
+    time,
+    price,
+    skill_level,
+    num_players,
+    enrolled_players,
+  } = listingData;
+
   let starsArray = [];
-  var i;
-  for (i = 0; i < 5; i++) {
-    if (i < skillLevel) {
+  for (let i = 0; i < 5; i++) {
+    if (i < skill_level) {
       starsArray.push(1);
     } else {
       starsArray.push(0);
     }
   }
+
+  function findSportName(category) {
+    switch (category) {
+      case 1:
+        return "Football";
+      case 2:
+        return "Basketball";
+      case 3:
+        return "Volleyball";
+      case 4:
+        return "Handball";
+      default:
+        return null;
+    }
+  }
+
+  const now = new Date();
+  const isEnrollMode = selectedMode === "enroll";
+  const isTimeInPast = new Date(time) <= now;
+
   return (
     <div className="card">
-      {selectedMode == "reviews" && (
+      {selectedMode !== "reviews" && (
         <div className="card-body">
-          <h5 className="card-title">
-            Raiting:
-            {starsArray.map((value, index) => {
-              if (value) {
-                return <i className="fas fa-star" key={index}></i>;
-              } else {
-                return <i className="far fa-star" key={index}></i>;
-              }
-            })}
-          </h5>
+          <h5 className="card-title">{findSportName(sport_id)}</h5>
           <div className="row">
-            <div className="col-12">He asked for more money</div>
-          </div>
-        </div>
-      )}
-      {selectedMode != "reviews" && (
-        <div className="card-body">
-          <h5 className="card-title">Football</h5>
-          <div className="row">
-            <div className="col-12">Koper, Slovenia</div>
-            <div className="col-12">14:56</div>
-            <div className="col-12">FREE</div>
+            <div className="col-12">{location}</div>
+            <div className="col-12">
+              <div>{new Date(time).toLocaleDateString()}</div>
+              <div>{new Date(time).toLocaleTimeString()}</div>
+            </div>
+            <div className="col-12">{price === 0 ? "FREE" : `${price} €`}</div>
             <div className="col-12">
               Skill Group <br />
-              {starsArray.map((value, index) => {
-                if (value) {
-                  return <i className="fas fa-star" key={index}></i>;
-                } else {
-                  return <i className="far fa-star" key={index}></i>;
-                }
-              })}
+              {starsArray.map((_, index) => (
+                <i
+                  className={
+                    index < skill_level ? "fas fa-star" : "far fa-star"
+                  }
+                  key={index}
+                ></i>
+              ))}
             </div>
-            {selectedMode == "enroll" && (
+            {isEnrollMode && (
               <div className="col-12">
-                <div className="col-12">User Raiting: 4.5</div>
-                <div className="col-12">
-                  <button className="btn btn-primary reviews-button">
-                    User reviews
-                  </button>
-                </div>
-                <div className="col-12">
-                  <button className="btn btn-primary">Enroll</button>
-                </div>
-                <div className="col-12">8/12</div>
+                <button className="btn btn-primary" onClick={handleEnroll}>
+                  Enroll
+                </button>
+                <div className="col-12">{`${enrolled_players}/${num_players}`}</div>
               </div>
             )}
-            {selectedMode == "finished" && (
+            {isEnrollMode && isTimeInPast && (
               <div className="col-12">
-                <hr />
-                <h6>Write a review</h6>
-                <hr />
-                <StarSelector className="col-12">Review raiting</StarSelector>
-                <textarea
-                  className="form-control"
-                  rows="3"
-                  placeholder="Write a review"
-                ></textarea>
-                <button className="btn btn-primary">Send review</button>
+                <div>{`${enrolled_players}/${num_players}`}</div>
               </div>
             )}
-            {selectedMode == "my" && <div className="col-12">8/12</div>}
+            {selectedMode === "my" && (
+              <div className="col-12">{`${enrolled_players}/${num_players}`}</div>
+            )}
           </div>
         </div>
       )}

@@ -49,6 +49,7 @@ function Form(props) {
         })
         .catch((error) => {
           console.error("Error during login:", error);
+          alert("Wrong credidentials");
         });
     } else {
       Axios.post(
@@ -137,20 +138,13 @@ function Form(props) {
         {props.registered ? "Login" : "Register"}
       </button>
       {props.registered && (
-        <div>
-          <div className="row">
-            <button className="btn btn-primary forgot-pass">
-              Forgot Password
-            </button>
-          </div>
-          <div className="row">
-            <button
-              onClick={() => props.setRegistered(false)}
-              className="btn btn-primary forgot-pass"
-            >
-              Create an account
-            </button>
-          </div>
+        <div className="row">
+          <button
+            onClick={() => props.setRegistered(false)}
+            className="btn btn-primary forgot-pass"
+          >
+            Create an account
+          </button>
         </div>
       )}
     </form>

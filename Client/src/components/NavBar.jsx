@@ -1,10 +1,35 @@
 import React from "react";
+import Axios from "axios";
 
-function NavBar({ categories, selectedCategory, onCategoryChange, setMode }) {
+function NavBar({
+  categories,
+  selectedCategory,
+  onCategoryChange,
+  setMode,
+  selectedMode,
+}) {
+  const handleSignOut = () => {
+    Axios.get("http://localhost:3001/logout", { withCredentials: true })
+      .then((response) => {
+        if (response.status === 200) {
+          window.location.href = "./login"; // Redirect to login page
+        }
+      })
+      .catch((error) => {
+        console.error("Error signing out:", error);
+      });
+  };
+
   return (
     <nav className="navbar navbar-expand-lg bg-primary navbar-dark">
       <div className="container-fluid">
-        <ul className="navbar-nav">
+        <ul
+          className="navbar-nav"
+          style={{
+            opacity: selectedMode != "enroll" ? 0 : 1,
+            pointerEvents: selectedMode != "enroll" ? "none" : "auto",
+          }}
+        >
           <li className="nav-item dropdown">
             <a
               className="nav-link dropdown-toggle"
@@ -64,15 +89,6 @@ function NavBar({ categories, selectedCategory, onCategoryChange, setMode }) {
                 className="dropdown-item"
                 href="#"
                 onClick={() => {
-                  setMode("reviews");
-                }}
-              >
-                My Reviews
-              </a>
-              <a
-                className="dropdown-item"
-                href="#"
-                onClick={() => {
                   setMode("my");
                 }}
               >
@@ -82,12 +98,12 @@ function NavBar({ categories, selectedCategory, onCategoryChange, setMode }) {
                 className="dropdown-item"
                 href="#"
                 onClick={() => {
-                  setMode("finished");
+                  setMode("enrolled");
                 }}
               >
-                Finished Listings
+                Enrolled Listings
               </a>
-              <a className="dropdown-item" href="#">
+              <a className="dropdown-item" href="#" onClick={handleSignOut}>
                 Sign Out
               </a>
             </div>
