@@ -3,7 +3,7 @@ import Axios from "axios";
 import NavBar from "../components/NavBar";
 import DateSelector from "../components/DateSelector";
 import Listing from "../components/Listing";
-import "../styles.css";
+require("../styles.css");
 import CreateListingDialog from "../components/CreateListingDialog";
 
 const categories = ["Football", "Basketball", "Volleyball", "Handball"];
@@ -70,7 +70,7 @@ export default function Home() {
 
   function handleEnroll(listingId) {
     Axios.post(
-      `http://localhost:3001/listings/enroll/${listingId}`,
+      `https://ill-red-puppy-cap.cyclic.cloud/listings/enroll/${listingId}`,
       { userId: loggedUserId },
       {
         withCredentials: true,
@@ -86,12 +86,14 @@ export default function Home() {
       })
       .catch((error) => {
         alert("error while enrolling");
-        console.error("Error while enrolling into listing", error);
+        console.log("Error while enrolling into listing", error);
       });
   }
 
   useEffect(() => {
-    Axios.get("http://localhost:3001/login", { withCredentials: true })
+    Axios.get("https://ill-red-puppy-cap.cyclic.cloud/login", {
+      withCredentials: true,
+    })
       .then((response) => {
         if (response.data.loggedIn === false) {
           window.location.href = "./login";
@@ -105,14 +107,14 @@ export default function Home() {
         }
       })
       .catch((error) => {
-        console.error("Error checking login status:", error);
+        console.log("Error checking login status:", error);
       });
   }, []);
 
   useEffect(() => {
     if (loginCompleted) {
       Axios.get(
-        `http://localhost:3001/listings/${selectedMode}/${loggedUserId}`,
+        `https://ill-red-puppy-cap.cyclic.cloud/listings/${selectedMode}/${loggedUserId}`,
         {
           params:
             selectedMode === "enroll"
@@ -125,15 +127,11 @@ export default function Home() {
         }
       )
         .then((response) => {
-          if (response.status === 201) {
-            setListings(response.data);
-          } else {
-            setListings(response.data);
-          }
+          setListings(response.data);
         })
         .catch((error) => {
           setListings(null);
-          console.error("Error fetching user's listings:", error);
+          console.log("Error fetching user's listings:", error);
         });
     }
   }, [
@@ -184,14 +182,14 @@ export default function Home() {
             <Listing
               handleEnroll={() => handleEnroll(listing.id)}
               selectedMode={selectedMode}
-              key={listing.id} // Assuming each listing has a unique ID
-              listingData={listing} // Pass the listing data to the Listing component
+              key={listing.id}
+              listingData={listing}
+              loggedUserId={loggedUserId}
             />
           ))
         ) : (
           <p>You have no listings.</p>
         )}
-        {/* Pass down the state and functions to the PopupDialog */}
         <CreateListingDialog
           isOpen={isPopupOpen}
           closeDialog={closePopup}

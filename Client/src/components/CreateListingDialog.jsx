@@ -43,7 +43,7 @@ const CreateListingDialog = ({ isOpen, closeDialog, loggedUserId }) => {
 
   const handleSubmit = () => {
     Axios.post(
-      "http://localhost:3001/listings/create",
+      "https://ill-red-puppy-cap.cyclic.cloud/listings/create",
       {
         creatorId, // You need to define creatorId
         sportId,
@@ -60,16 +60,13 @@ const CreateListingDialog = ({ isOpen, closeDialog, loggedUserId }) => {
         if (response.status === 201) {
           alert(response.data.message);
           closeDialog();
-        } else {
-          if (response.data.message) {
-            alert(response.data.message);
-          } else {
-            alert("An error occurred while creating the listing.");
-          }
+        } else if (response.status === 400) {
+          alert("Review already exists for this listing by the same user");
         }
       })
       .catch((error) => {
-        console.error("Error during listing creation:", error);
+        alert("Error during listing creation:");
+        console.log("Error during listing creation:", error);
       });
   };
 
@@ -139,11 +136,13 @@ const CreateListingDialog = ({ isOpen, closeDialog, loggedUserId }) => {
               onChange={(e) => setAdditionalInfo(e.target.value)}
             ></textarea>
             <div className="row text-center">
-              <input
-                type="submit"
+              <button
+                type="button"
                 className="btn btn-primary submit-button"
                 onClick={handleSubmit}
-              />
+              >
+                Create
+              </button>
             </div>
             <button className="btn-close btn btn-primary" onClick={closeDialog}>
               Close

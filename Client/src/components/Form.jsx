@@ -28,7 +28,7 @@ function Form(props) {
   const handleSubmission = () => {
     if (props.registered) {
       Axios.post(
-        "http://localhost:3001/login",
+        "https://ill-red-puppy-cap.cyclic.cloud/login",
         {
           email: email,
           password: password,
@@ -48,12 +48,12 @@ function Form(props) {
           }
         })
         .catch((error) => {
-          console.error("Error during login:", error);
+          console.log("Error during login:", error);
           alert("Wrong credidentials");
         });
     } else {
       Axios.post(
-        "http://localhost:3001/register",
+        "https://ill-red-puppy-cap.cyclic.cloud/register",
         {
           name: name,
           lastName: surname,
@@ -64,17 +64,22 @@ function Form(props) {
           password: password,
         },
         { withCredentials: true }
-      ).then((response) => {
-        if (response.status == 200) {
-          props.setRegistered(true);
-        } else {
-          if (response.data.message) {
-            alert(response.data.message);
+      )
+        .then((response) => {
+          if (response.status == 200) {
+            props.setRegistered(true);
           } else {
-            alert("An error occurred during registration. Try again");
+            if (response.data.message) {
+              alert(response.data.message);
+            } else {
+              alert("An error occurred during registration. Try again");
+            }
           }
-        }
-      });
+        })
+        .catch((err) => {
+          console.log(err);
+          alert("Error while registering, try again");
+        });
     }
   };
 

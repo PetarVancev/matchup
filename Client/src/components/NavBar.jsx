@@ -9,14 +9,17 @@ function NavBar({
   selectedMode,
 }) {
   const handleSignOut = () => {
-    Axios.get("http://localhost:3001/logout", { withCredentials: true })
+    Axios.get("https://ill-red-puppy-cap.cyclic.cloud/logout", {
+      withCredentials: true,
+    })
       .then((response) => {
         if (response.status === 200) {
           window.location.href = "./login"; // Redirect to login page
         }
       })
       .catch((error) => {
-        console.error("Error signing out:", error);
+        alert("Error signing out:");
+        console.log("Error signing out:", error);
       });
   };
 

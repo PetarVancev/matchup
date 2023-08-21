@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import Form from "../components/Form";
-if (window?.location.pathname === "/login") require("../loginStyles.css");
+import "../loginStyles.css";
 
 function Login() {
   useEffect(() => {
-    Axios.get("http://localhost:3001/login", { withCredentials: true })
+    Axios.get("https://ill-red-puppy-cap.cyclic.cloud/login", {
+      withCredentials: true,
+    })
       .then((response) => {
         if (response.data.loggedIn === true) {
           const targetUrl = `${window.location.origin}/`;
@@ -14,12 +16,13 @@ function Login() {
         }
       })
       .catch((error) => {
-        console.error("Error checking login status:", error);
+        console.log("Error checking login status:", error);
       });
   }, []);
   const [registered, setRegistered] = useState(true);
   return (
     <div className="container login">
+      <div className="full-page-background"></div>
       <Form registered={registered} setRegistered={setRegistered} />
     </div>
   );

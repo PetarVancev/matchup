@@ -4,6 +4,9 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
+
+const PORT = process.env.PORT || 3030;
 
 // Hashing rounds for bcrypt
 const saltRound = 5;
@@ -13,20 +16,37 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    exposedHeaders: ["set-cookie"],
+    origin: true,
     credentials: true,
   })
 );
 app.use(cookieParser());
+
+const sessionStore = new MySQLStore({
+  host: "db4free.net",
+  port: "3306",
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: "matchup",
+});
+
+app.set("trust proxy", 1);
+
 app.use(
   session({
     key: "userId",
     secret: "subscribe",
+    store: sessionStore,
     resave: false,
     saveUninitialized: false,
+    name: "matchupLogin",
     cookie: {
-      expires: 60 * 60 * 24, // Cookie expiry in seconds
+      expires: 60 * 60 * 24,
+      sameSite: "none", // Set the SameSite attribute to "None"
+      secure: true,
+      httpOnly: true,
+      domain: ".cyclic.cloud",
     },
   })
 );
@@ -362,6 +382,59 @@ app.get("/listings/my/:id", (req, res) => {
   }
 });
 
-app.listen(3001, () => {
+app.post("/reviews/submit", (req, res) => {
+  const { listingId, userId, rating, text } = req.body;
+  if (req.session.user) {
+    db.execute(
+      "INSERT INTO Review (listing_id, user_id, rating, text) VALUES (?, ?, ?, ?)",
+      [listingId, userId, rating, text],
+      (err, result) => {
+        if (err && err.code === "ER_DUP_ENTRY") {
+          console.log(
+            "Review already exists for this listing by the same user"
+          );
+          res.status(400).json({ message: "Review already exists" });
+        } else if (err) {
+          console.log("Error during review submission:", err);
+          res.status(500).json({ message: "Error during review submission" });
+        } else {
+          console.log("Review submitted successfully");
+          res.status(201).json({ message: "Review submitted successfully" });
+        }
+      }
+    );
+  } else {
+    console.log("Can't submit review because user is not loggedIn");
+    res.status(401).json({ loggedIn: false, message: "You are not logged in" });
+  }
+});
+
+app.get("/reviews/:userId", (req, res) => {
+  const userId = req.params.userId;
+  if (req.session.user) {
+    db.execute(
+      `SELECT r.*
+      FROM Review r
+      JOIN Listing l ON r.listing_id = l.id
+      WHERE l.creator_id = ?;`,
+      [userId],
+      (err, result) => {
+        if (err) {
+          console.log("Error while fetching user reviews:", err);
+          res
+            .status(500)
+            .json({ message: "Error while fetching user reviews" });
+        } else {
+          res.status(200).json(result);
+        }
+      }
+    );
+  } else {
+    console.log("Can't get reviews because user is not loggedIn");
+    res.status(401).json({ loggedIn: false, message: "You are not logged in" });
+  }
+});
+
+app.listen(PORT, () => {
   console.log("Running server on port 3001");
 });
