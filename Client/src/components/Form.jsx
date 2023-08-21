@@ -83,8 +83,15 @@ function Form(props) {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevents the default form submission behavior
+      handleSubmission();
+    }
+  };
+
   return (
-    <form className="form">
+    <form className="form" onKeyDown={handleKeyPress}>
       {props.registered === false && (
         <div>
           <input
